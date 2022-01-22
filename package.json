@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-code",
+  "version": "1.0.0",
+  "description": "📚 Node.js 공부자료",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tableMinPark/nodejs-code.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tableMinPark/nodejs-code/issues"
+  },
+  "homepage": "https://github.com/tableMinPark/nodejs-code#readme",
+  "dependencies": {
+    "sanitize-html": "^2.6.1"
+  }
+}
