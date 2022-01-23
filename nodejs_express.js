@@ -44,6 +44,7 @@ app.get('/page/:pageId', function(request, response, next){
     const filteredId = path.parse(request.params.pageId).base;
     fs.readFile(`data/${filteredId}`, "utf-8", function(err, description){
         if (err){
+            // 파일을 찾을 때 에러(파일이 없을 때 발생)가 발생하면 next를 통해 err를 아래 미들웨어로 전달
             next(err);
         } else{
             const title = request.params.pageId;    
@@ -187,6 +188,7 @@ app.use(function(request, response, next){
     response.status(404).send('Sorry cant find that!');
 });
 
+// 파일을 찾을 때 발생한 에러(파일이 없을 때 발생)를 받음
 app.use(function(err, request, response, next){
     console.error(err.stack);
     response.status(500).send('Something broke!');
