@@ -16,6 +16,7 @@ const app = express();
 // })
 
 // Application-level middleware
+app.use(express.static('public'));                      // 정적인 파일에 접근할 수 있는 폴더를 지정해줘야함 (지정한 폴더는 URL을 통해 접근을 할 수 있음)
 app.use(bodyParser.urlencoded({extended: false}));      // body-parser 미들웨어 탑재 (request로 들어오는 body 를 자동으로 파싱해줌)
 app.use(compression());                                 // compression 미들웨어 탑재 (데이터를 압축하여 네트워크 비용을 줄임)
 app.get('*', function(request, response, next){         // get 방식으로 들어오는 모든 요청에 미들웨어사용
@@ -25,41 +26,47 @@ app.get('*', function(request, response, next){         // get 방식으로 들�
     });
 });
 
-
-
 app.get('/', function(request, response){
     const title = "Welcome";
     const description = "Hello, Node.js";
     const list = template.list(request.list);
     const html = template.html(title, list, 
-        `<h2>${title}</h2>${description}`,
+        `<h2>${title}</h2>${description}
+        <img src="/images/develop.jpg" style="width:300px; display:block; margin:10px;">
+        `,
         `<a href="/create">create</a>`
     );
     response.send(html);
 });
 
-app.get('/page/:pageId', function(request, response){
+app.get('/page/:pageId', function(request, response, next){
     // localhost:3000/page/HTML => {pageId: "HTML"} : pageId 자리에 입력하는 값이 request를 통해 전달됨 (?pageId=HTML 과는 다른방식)
     const filteredId = path.parse(request.params.pageId).base;
     fs.readFile(`data/${filteredId}`, "utf-8", function(err, description){
-        const title = request.params.pageId;    
-        const sanitizeTitle = sanitizeHtml(title);  
-        const sanitizeDescription = sanitizeHtml(description, {
-            allowedTags: ["h1"]
-        });
-        const list = template.list(request.list);                    
-        const html = template.html(title, list, 
-            `<h2>${sanitizeTitle}</h2>${sanitizeDescription}`,
-            `
-            <a href="/create">create</a> 
-            <a href="/update/${sanitizeTitle}">update</a>
-            <form action="/delete_process" method="post">
-                <input type="hidden" name="id" value="${sanitizeTitle}">
-                <input type="submit" value="delete">
-            </form>
-            `
-        );
-        response.send(html);
+        if (err){
+            next(err);
+        } else{
+            const title = request.params.pageId;    
+            const sanitizeTitle = sanitizeHtml(title);  
+            const sanitizeDescription = sanitizeHtml(description, {
+                allowedTags: ["h1"]
+            });
+            const list = template.list(request.list);                    
+            const html = template.html(title, list, 
+                `<h2>${sanitizeTitle}</h2>${sanitizeDescription}`,
+                `
+                <a href="/create">create</a> 
+                <a href="/update/${sanitizeTitle}">update</a>
+                <form action="/delete_process" method="post">
+                    <input type="hidden" name="id" value="${sanitizeTitle}">
+                    <input type="submit" value="delete">
+                </form>
+                `
+            );
+            response.send(html);
+        }
+
+        
     })
 });
 
@@ -174,5 +181,15 @@ app.post('/delete_process', function(request, response){
         response.redirect(`/`);
     })    
 });
+
+// 미들웨어는 순차적으로 실행되기 때문에 마지막에 위치해야함 (404 Error)
+app.use(function(request, response, next){
+    response.status(404).send('Sorry cant find that!');
+});
+
+app.use(function(err, request, response, next){
+    console.error(err.stack);
+    response.status(500).send('Something broke!');
+})
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));
