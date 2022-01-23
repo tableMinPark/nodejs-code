@@ -1,7 +1,7 @@
 {
   "name": "nodejs-code",
   "version": "1.0.0",
-  "description": "📚 Node.js 공부자료",
+  "description": "📚 Node.js 기초잡기",
   "main": "main.js",
   "directories": {
     "lib": "lib"
