@@ -13,6 +13,7 @@ const app = http.createServer(function (request, response) {
     const pathname = url.parse(_url, true).pathname;
 
     if (pathname === "/"){
+        // localhost:3000/
         if (queryData.id === undefined){
             fs.readdir("./data", function(err, filelist){
                 const title = "Welcome";
@@ -26,6 +27,7 @@ const app = http.createServer(function (request, response) {
                 response.end(html);
             })
         } else{
+            // localhost:3000/?id=HTML
             fs.readdir("./data", function(err, filelist){
                 const filteredId = path.parse(queryData.id).base;
                 fs.readFile(`data/${filteredId}`, "utf-8", function(err, description){
@@ -52,6 +54,7 @@ const app = http.createServer(function (request, response) {
             });
         }
     } else if (pathname === "/create"){
+        // localhost:3000/create
         fs.readdir("./data", function(err, filelist){
             const title = "WEB - create";
             const list = template.list(filelist);
@@ -65,13 +68,17 @@ const app = http.createServer(function (request, response) {
             response.writeHead(200);     
             response.end(html);
         })
-    } else if (pathname === "/create_process"){
+    } else if (pathname === "/create_process"){        
+        // localhost:3000/create_process
         let body = "";
+        // "data" 이벤트가 발생하면 핸들러를 실행시키고 데이터를 계속 받음
         request.on("data", function(data){
             body = body + data;
         });
+        // 위의 "data" 이벤트 핸들러가 데이터를 다 받으면 "end" 이벤트가 발생되어 핸들러를 실행시킴
         request.on("end", function(){
-            const post = qs.parse(body);
+            // body => "title=a&description=b"
+            const post = qs.parse(body);        // 사용자에게 입력받은 body
             const title = post.title;
             const description = post.description;
             fs.writeFile(`data/${title}`, description, "utf-8", function(err){
@@ -81,7 +88,8 @@ const app = http.createServer(function (request, response) {
         });
 
         
-    } else if (pathname === "/update"){
+    } else if (pathname === "/update"){        
+        // localhost:3000/update
         fs.readdir("./data", function(err, filelist){
             const filteredId = path.parse(queryData.id).base;
             fs.readFile(`data/${filteredId}`, "utf-8", function(err, description){
@@ -102,7 +110,8 @@ const app = http.createServer(function (request, response) {
                 response.end(html);
             })
         });
-    } else if (pathname === "/update_process"){
+    } else if (pathname === "/update_process"){  
+        // localhost:3000/update_process
         let body = "";
         request.on("data", function(data){
             body = body + data;
@@ -120,7 +129,8 @@ const app = http.createServer(function (request, response) {
             })
             
         });
-    } else if (pathname === "/delete_process"){
+    } else if (pathname === "/delete_process"){          
+        // localhost:3000/delete_process
         let body = "";
         request.on("data", function(data){
             body = body + data;
@@ -135,6 +145,7 @@ const app = http.createServer(function (request, response) {
             })
         });        
     } else {
+        // 위에서 정의되지 않은 경로로 접속할 경우 404 Not Found 
         response.writeHead(404);
         response.end("Not found");
     }
